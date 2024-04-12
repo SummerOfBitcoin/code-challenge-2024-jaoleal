@@ -77,7 +77,15 @@ To find that, we have a certain number of hashes that we can get with 32-bit nou
 When the algorithm finds the hash it will log all the output into some `{blockhash}log.txt` file. This will help anyone to test the program.
 
 ## Development Process
-- [X] Something
+- [X] Describes all the modules and dev steps in SOLUTION.md
+- [ ] Python Code
+    - [ ] tx's abstraction and validation
+    - [ ] tx's array object
+    - [ ] knapsack
+    - [ ] Merkle Root
+    - [ ] Block Header
+    - [ ] find the nonce
+    - [ ] output and log  
 
 ### Efficiency and optimization  
 First i will prototype in python and later re-write everything in rust... i think that this is the best way to write good code, without bugs and test covered.
