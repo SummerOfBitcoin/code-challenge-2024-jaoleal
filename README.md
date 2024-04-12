@@ -30,7 +30,7 @@ The difficulty target is `0000ffff0000000000000000000000000000000000000000000000
 ## Evaluation Criteria
 Your submission will be evaluated based on the following criteria:
 
-- **Score**: Your code output will be scored bases on the fee collected and the amount of available block space utilised. **You must score at least 60 points to pass the challenge.**
+- **Score**: Your code output will be scored bases on the fee collected and the amount of available block space utilized. **You must score at least 60 points to pass the challenge.**
 - **Correctness**: The `output.txt` file must be correctly formatted in the manner described above.
 - **Code Quality**: Your code should be well-organized, commented, and follow best practices.
 - **Efficiency**: Your solution should process transactions and mine the block efficiently.
@@ -58,7 +58,7 @@ Our plagiarism detection checker thoroughly identifies any instances of copying 
 You may use AI tools like ChatGPT to gather information and explore alternative approaches, but avoid relying solely on AI for complete solutions. Verify and validate any insights obtained and maintain a balance between AI assistance and independent problem-solving.
 
 ## Why These Restrictions?
-These restrictions are designed to deepen your understanding of bitcoin technicals.
+These restrictions are designed to deepen your understanding of bitcoin technical.
 By completing this assignment, you will gain hands-on experience with the technology that make bitcoin secure and trustless.
 Remember, the goal of this challenge is not just to produce a working solution but to engage critically with the fundamental components of bitcoin. This is an opportunity to showcase your problem-solving skills and your ability to implement complex algorithms from scratch.
 

@@ -1,4 +1,4 @@
-def verify_transaction(transaction):
+def tx_syntax_validation(transaction):
     required_fields = ['txid', 'inputs', 'outputs']
     if not all(field in transaction for field in required_fields):
         return False
@@ -22,7 +22,11 @@ def verify_transaction(transaction):
         # Check if address is a string and value is a positive number
         if not isinstance(output['address'], str) or not isinstance(output['value'], (int, float)) or output['value'] <= 0:
             return False
-
-    
     return True
 
+def tx_verify_sig(transaction):
+    for input in transaction['inputs']:
+        if 'signature' not in input or not isinstance(input['signature'], str):
+            return False
+        
+    return True

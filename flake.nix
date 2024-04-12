@@ -19,6 +19,7 @@
     {
       devShells.default = mkShell {
         buildInputs = [
+          python310Packages.pytest
           python3
           openssl
           pkg-config
