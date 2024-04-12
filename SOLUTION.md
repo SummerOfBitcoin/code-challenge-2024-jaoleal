@@ -77,7 +77,7 @@ To find that, we have a certain number of hashes that we can get with 32-bit nou
 When the algorithm finds the hash it will log all the output into some `{blockhash}log.txt` file. This will help anyone to test the program.
 
 ## Development Process
-Since i have the transactions, I will focus in finding the best Merkle Root building an efficient Merkle Root algorithm
+- [X] Something
 
 ### Efficiency and optimization  
 First i will prototype in python and later re-write everything in rust... i think that this is the best way to write good code, without bugs and test covered.
