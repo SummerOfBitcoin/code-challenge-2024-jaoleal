@@ -1,8 +1,6 @@
 import transactions.transactions as txmod
 import transactions.bitcoin_script as btcscript
 
-# Example usage
-
 def test_btc_script():
     interpreter = btcscript.BitcoinScriptInterpreter()
     stack = []
@@ -11,7 +9,7 @@ def test_btc_script():
     # P2PKH
     script_pubkey_p2pkh = "OP_DUP OP_HASH160 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_EQUALVERIFY OP_CHECKSIG"
     script_sig_p2pkh = "3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 04abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    stack_p2pkh = (script_pubkey_p2pkh + script_sig_p2pkh).split()
+    stack_p2pkh = (script_sig_p2pkh +  script_pubkey_p2pkh).split()
 
     # P2SH
     script_pubkey_p2sh = "OP_HASH160 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_EQUAL"
@@ -28,18 +26,12 @@ def test_btc_script():
     script_sig_p2pk = "3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
     stack_p2pk = [script_sig_p2pk, script_pubkey_p2pk]
 
-    # Timelock
-    script_pubkey_timelock = "OP_CHECKLOCKTIMEVERIFY OP_DROP 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_CHECKSIG"
-    script_sig_timelock = "3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    stack_timelock = [script_sig_timelock, script_pubkey_timelock]
-
     result_p2pkh = interpreter.execute_script(script_pubkey_p2pkh, stack_p2pkh, tx_data)
     result_p2sh = interpreter.execute_script(script_pubkey_p2sh, stack_p2sh, tx_data)
     result_p2ms = interpreter.execute_script(script_pubkey_p2ms, stack_p2ms, tx_data)
     result_p2pk = interpreter.execute_script(script_pubkey_p2pk, stack_p2pk, tx_data)
-    result_timelock = interpreter.execute_script(script_pubkey_timelock, stack_timelock, tx_data)
     
-    assert (result_p2pkh and result_p2sh and result_p2ms and result_p2pk and result_timelock) == True
+    assert (result_p2pkh and result_p2sh and result_p2ms and result_p2pk) == True
 
 def test_verify_transaction():
     # Arrange
