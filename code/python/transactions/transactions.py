@@ -1,30 +1,52 @@
 import json
 import os
-def valid_tx_array(tx_id, tx_array):
+
+
+def valid_tx_array(tx_id):    
+    # get raw json data
     tx_info = get_tx_info(tx_id)
-    in_values = 0
-    out_values = 0
+    if tx_info == False:
+        return {"end": ["0", "0"]}
+        
+    #this block of code is just for calculating the fee.
+    in_value = 0
+    out_value = 0
     for in_values in tx_info["vin"]:    
-        in_values += in_values["value"]
+       in_value += in_values["prevout"]["value"]
     for out_values in tx_info["vout"]:
-        out_values += out_values["value"]
-    fee = in_values - out_values
-    if in_values > out_values:
-        tx_array.append({tx_id: [fee, get_tx_size(tx_id)]})
-    for vout in tx_info["vin"]:
-        valid_tx_array(vout["txid"], tx_array)
+        out_value += out_values["value"]
+    fee = in_value - out_value
+    tx_array = {tx_id: [fee, get_tx_size(tx_id)]}
+    #recursion for each input
+    for tx in tx_info["vin"]:
+        if tx["txid"] not in tx_array:
+            tx_array.update(valid_tx_array(tx["txid"]))
+
+    return tx_array 
+
+def get_tx_size(tx_id):
+    #will return the size of the tx in bytes
+    path = "../../mempool/" + tx_id
+    if not (os.path.exists(path)):
+        return False
+    return os.path.getsize(path)
 
 def get_tx_info(tx_id):
-    tx_id =  tx_id + ".json"
-    tx_entries = os.listdir("../../mempool/")
-    for tx_entry in tx_entries:
-        if tx_id == tx_entry:
-            path = "../../mempool/" + tx_entry
-            tx_file = open(path)
-            return json.load(tx_file)
+    #will return the json raw data or False if 
+    #if does not found it
+    #
+    #if input of the function is "all" will return
+    #all txs in the mempool
+    path = "../../mempool/" + tx_id
 
-    print(tx_id + " not found in mempool")
+    if tx_id == "all":
+        return os.listdir("../../mempool/")
     
+    if not (os.path.exists(path)):
+        return False
+    
+    return json.load(open(path))
+
 def tx_syntax_validation(tx):
     required_fields = ['txid', 'inputs', 'outputs']
     if not all(field in tx for field in required_fields):
