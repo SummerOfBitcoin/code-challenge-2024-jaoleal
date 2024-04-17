@@ -79,13 +79,21 @@ When the algorithm finds the hash it will log all the output into some `{blockha
 ## Development Process
 - [X] Describes all the modules and dev steps in SOLUTION.md
 - [ ] Python Code
-    - [ ] tx's abstraction and validation
-    - [ ] tx's array object
+    - [ ] tx's validation
+    - [X] tx's array object
     - [ ] knapsack
     - [ ] Merkle Root
     - [ ] Block Header
     - [ ] find the nonce
     - [ ] output and log  
 
-### Efficiency and optimization  
+### Efficiency and optimization 
+
 First i will prototype in python and later re-write everything in rust... i think that this is the best way to write good code, without bugs and test covered.
+
+#### Orphan transactions
+in the commit logs, do a checkout if you need to (4798bc500901b73af8a9fffe00fa750aa802cc69)
+
+The `valid_tx_array` function at `transactions/transactions.py` build a graph, recursively trying to find the prevout txid and adding it to a list of dicts(the dict object contain txid : "fee", "size" ), until it does not find the prevout txid adding a "empty" dict.
+
+after a lot of check, all the lists only has the empty dict and the tx itself, meaning that they all are orphans.
