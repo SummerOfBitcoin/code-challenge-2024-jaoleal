@@ -1,13 +1,10 @@
 import json
 import os
 
-
-def valid_tx_array(tx_id):    
+def valid_tx_values(tx_id):
+    
     # get raw json data
     tx_info = get_tx_info(tx_id)
-    if tx_info == False:
-        return {"end": ["0", "0"]}
-        
     #this block of code is just for calculating the fee.
     in_value = 0
     out_value = 0
@@ -16,13 +13,8 @@ def valid_tx_array(tx_id):
     for out_values in tx_info["vout"]:
         out_value += out_values["value"]
     fee = in_value - out_value
-    tx_array = {tx_id: [fee, get_tx_size(tx_id)]}
     #recursion for each input
-    for tx in tx_info["vin"]:
-        if tx["txid"] not in tx_array:
-            tx_array.update(valid_tx_array(tx["txid"]))
-
-    return tx_array 
+    return {tx_id: [fee, get_tx_size(tx_id)]}
 
 def get_tx_size(tx_id):
     #will return the size of the tx in bytes
@@ -44,7 +36,7 @@ def get_tx_info(tx_id):
     
     if not (os.path.exists(path)):
         return False
-    
+
     return json.load(open(path))
 
 def tx_syntax_validation(tx):
