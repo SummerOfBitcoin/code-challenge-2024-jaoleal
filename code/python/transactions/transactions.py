@@ -132,7 +132,7 @@ def valid_tx_values(tx_id):
         out_value += out_values["value"]
     fee = in_value - out_value
     #recursion for each input
-    return [fee, get_tx_size(tx_info)]
+    return [fee, get_tx_size(tx_info), tx_id]
 
 def get_tx_size(tx_info):
     #will return the size of the serialized tx in bytes
