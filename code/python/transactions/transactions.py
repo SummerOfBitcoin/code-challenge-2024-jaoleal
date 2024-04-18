@@ -1,5 +1,123 @@
 import json
 import os
+import struct
+import sys
+
+import struct
+import binascii
+
+def reverse_bytes(byte_array):
+    return byte_array[::-1]
+
+def serialize_varint(value):
+    if value < 0xFD:
+        return struct.pack("<B", value)
+    elif value <= 0xFFFF:
+        return b'\xFD' + struct.pack("<H", value)
+    elif value <= 0xFFFFFFFF:
+        return b'\xFE' + struct.pack("<I", value)
+    else:
+        return b'\xFF' + struct.pack("<Q", value)
+
+def tx_serialization(tx):
+    serialized = bytearray()
+
+    # Serialize version
+    serialized.extend(struct.pack("<I", tx['version']))
+
+    # Serialize vin count
+    vin_count = len(tx['vin'])
+    serialized.extend(serialize_varint(vin_count))
+
+    # Serialize vin
+    for vin in tx['vin']:
+        txid_bytes = binascii.unhexlify(vin['txid'])
+        serialized.extend(reverse_bytes(txid_bytes))
+
+        serialized.extend(struct.pack("<I", vin['vout']))
+
+        scriptsig_bytes = binascii.unhexlify(vin['scriptsig'])
+        serialized.extend(serialize_varint(len(scriptsig_bytes)))
+        serialized.extend(scriptsig_bytes)
+
+        serialized.extend(struct.pack("<I", vin['sequence']))
+
+    # Serialize vout count
+    vout_count = len(tx['vout'])
+    serialized.extend(serialize_varint(vout_count))
+
+    # Serialize vout
+    for vout in tx['vout']:
+        serialized.extend(struct.pack("<Q", vout['value']))
+
+        scriptpubkey_bytes = binascii.unhexlify(vout['scriptpubkey'])
+        serialized.extend(serialize_varint(len(scriptpubkey_bytes)))
+        serialized.extend(scriptpubkey_bytes)
+
+    # Serialize locktime
+    serialized.extend(struct.pack("<I", tx['locktime']))
+
+    return serialized
+
+def segwit_serialize(tx):
+    serialized = bytearray()
+    is_segwit = check_segwit(tx)
+
+    # Serialize version
+    serialized.extend(struct.pack("<I", tx['version']))
+
+    # Serialize vin count
+    if is_segwit:
+        serialized.extend(b'\x00\x01')
+
+    vin_count = len(tx['vin'])
+    serialized.extend(serialize_varint(vin_count))
+
+    # Serialize vin
+    for vin in tx['vin']:
+        txid_bytes = binascii.unhexlify(vin['txid'])
+        serialized.extend(reverse_bytes(txid_bytes))
+
+        serialized.extend(struct.pack("<I", vin['vout']))
+
+        scriptsig_bytes = binascii.unhexlify(vin['scriptsig'])
+        serialized.extend(serialize_varint(len(scriptsig_bytes)))
+        serialized.extend(scriptsig_bytes)
+
+        serialized.extend(struct.pack("<I", vin['sequence']))
+
+    # Serialize vout count
+    vout_count = len(tx['vout'])
+    serialized.extend(serialize_varint(vout_count))
+
+    # Serialize vout
+    for vout in tx['vout']:
+        serialized.extend(struct.pack("<Q", vout['value']))
+
+        scriptpubkey_bytes = binascii.unhexlify(vout['scriptpubkey'])
+        serialized.extend(serialize_varint(len(scriptpubkey_bytes)))
+        serialized.extend(scriptpubkey_bytes)
+
+    # Serialize locktime
+    if is_segwit:
+        for vin in tx['vin']:
+            witness_count = len(vin['witness'])
+            serialized.extend(serialize_varint(witness_count))
+            for witness in vin['witness']:
+                witness_bytes = binascii.unhexlify(witness)
+                serialized.extend(serialize_varint(len(witness_bytes)))
+                serialized.extend(witness_bytes)
+
+    serialized.extend(struct.pack("<I", tx['locktime']))
+
+    return serialized
+
+def check_segwit(tx):
+    for vin in tx['vin']:
+        if len(vin['witness']) > 0:
+            return True
+    return False
+
 
 def valid_tx_values(tx_id):
     
@@ -14,21 +132,18 @@ def valid_tx_values(tx_id):
         out_value += out_values["value"]
     fee = in_value - out_value
     #recursion for each input
-    return {tx_id: [fee, get_tx_size(tx_id)]}
+    return [fee, get_tx_size(tx_info)]
 
-def get_tx_size(tx_id):
-    #will return the size of the tx in bytes
-    path = "../../mempool/" + tx_id
-    if not (os.path.exists(path)):
-        return False
-    return os.path.getsize(path)
+def get_tx_size(tx_info):
+    #will return the size of the serialized tx in bytes
+    return sys.getsizeof(tx_serialization(tx_info))
 
 def get_tx_info(tx_id):
     #will return the json raw data or False if 
     #if does not found it
     #
     #if input of the function is "all" will return
-    #all txs in the mempool
+    #all tx_ids in the mempool
     path = "../../mempool/" + tx_id
 
     if tx_id == "all":
