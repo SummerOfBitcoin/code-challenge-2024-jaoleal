@@ -3,13 +3,14 @@ import json
 import tx.transactions as txmod
 import tx.serialization as txser
 
-def build_block(block_header, txids, coinbase):
+def build_block(block_header, txids, coinbase, coinbaseid):
     block = block_header + ((len(txids) + 1).to_bytes(4, byteorder='big')).hex()
     txs = bytearray()
     for txid in txids:
         split_tx = txser.serialize_tx_data(txmod.get_tx_info(txid))
         for part in split_tx:
             txs += part
+    txids.insert(0, coinbaseid)
     return block, coinbase.hex(), txids
 
 def build_coinbase_tx(fee):

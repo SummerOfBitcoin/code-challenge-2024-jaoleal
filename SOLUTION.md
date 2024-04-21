@@ -6,7 +6,7 @@ To mine a block and get the maximum amout of sats i have to build to build the b
 - Difficulty target that is 0000ffff00000000000000000000000000000000000000000000000000000000, meaning 4 zeroes.
 - and the nonce, see [Finding the nonce](#Finding_The_Nonce)
 
-I decided to make static data so that is easy to verify the nonce and the block without re-mining it. but you can re-mine the block changing the timestamp just adding the -remine flag to the binary.
+I decided to make static data so that is easy to verify the nonce and the block without re-mining it. but you can re-mine the block changing the timestamp.
 
 
 ## Making The Merkle Root
@@ -79,10 +79,10 @@ When the algorithm finds the hash it will log all the output into some `{blockha
 ## Development Process
 - [X] Describes all the modules and dev steps in SOLUTION.md
 - [ ] Python Code
-    - [ ] tx's validation
+    - [X] tx's validation
     - [X] tx's array object
-    - [ ] knapsack
-    - [ ] Merkle Root
+    - [X] knapsack
+    - [X] Merkle Root
     - [ ] Block Header
     - [ ] find the nonce
     - [ ] output and log  
