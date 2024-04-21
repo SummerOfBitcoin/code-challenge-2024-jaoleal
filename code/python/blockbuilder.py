@@ -69,6 +69,7 @@ def merkle_root(txids,coinbase = 0, first_wave = True):
     return merkle_root(new_txids,0, False)
 
 def build_bits(difficulty):
+    print(difficulty)
     # convert the difficulty to shorty format
     # the function input is the difficulty in hex format
     difficulty = bytes.fromhex(difficulty)
@@ -86,10 +87,10 @@ def build_bits(difficulty):
                     coefficient = difficulty[i + j - 3:i + j]
                     coefficient = coefficient[::-1]
                     if coefficient[2] == 0x00:
-                        coefficient = 0x00.to_bytes() + coefficient[:2]
+                        coefficient = (0x00).to_bytes(1, byteorder='big') + coefficient[:2]
                         back += 1
                     break
-            exponent = (i + back).to_bytes(byteorder='big')
+            exponent = (i + back).to_bytes(1, byteorder='big')
             break
     coefficient_hex = coefficient.hex()
     exponent_hex = exponent.hex()
