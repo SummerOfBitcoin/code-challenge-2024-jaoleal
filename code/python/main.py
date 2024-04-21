@@ -24,7 +24,6 @@ def main():
 
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     #for some reason python decides now that will use pointers to list
-
     included_txs.remove(coinbaseid)
 
     merkle_root = merkle_root.hex()
@@ -35,8 +34,8 @@ def main():
         block_header = str(version) + str(merkle_root) + str(timestamp) + str(bits) + str(nonce)
         block_hash = sha256(sha256(block_header.encode()).digest()).hexdigest()
         if block_hash < difficulty_hash:
-            block = bb_mod.build_block(block_header, included_txs, coinbase)
-            f = open("./output.txt", "w")
+            block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)
+            f = open("../../output.txt", "w")
             f.write(block[0])
             f.write("\n")
             f.write(block[1])
