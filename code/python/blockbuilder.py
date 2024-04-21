@@ -4,7 +4,7 @@ import tx.transactions as txmod
 import tx.serialization as txser
 
 def build_block(block_header, txids, coinbase):
-    block = block_header + str((len(txids) + 1).to_bytes(4, byteorder='big'))
+    block = block_header + ((len(txids) + 1).to_bytes(4, byteorder='big')).hex()
     txs = bytearray()
     for txid in txids:
         split_tx = txser.serialize_tx_data(txmod.get_tx_info(txid))
