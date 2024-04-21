@@ -1,9 +1,21 @@
 import json
-import transactions.transactions as txmod
-import transactions.bitcoin_script as btcscript
+import tx.transactions as txmod
+import tx.bitcoin_script as btcscript
+import tx.serialization as txser
+import hashlib as h
+
+def test_serialization():
+    entry = "0a70cacb1ac276056e57ebfb0587d2091563e098c618eebf4ed205d123a3e8c4"
+    tx_info = txmod.get_tx_info(entry + ".json")
+    ser = txser.serialize_tx_data(tx_info)
+    hash1 = h.sha256(ser[0]+ ser[2]).digest()
+    hash2 = h.sha256(hash1).digest()
+    hash = hash2.hex()
+    assert hash == "1c80292abf033e400d29c6a7df5852ea68dbffc2788b3afbfe451c8e9c0803eb"
+
 
 def test_get_tx_info():
-    tx_id = "0a3c3139b32f021a35ac9a7bef4d59d4abba9ee0160910ac94b4bcefb294f196"
+    tx_id = "0a3c3139b32f021a35ac9a7bef4d59d4abba9ee0160910ac94b4bcefb294f196.json"
     info = txmod.get_tx_info(tx_id)
     assert info == json.loads("""{
   "version": 1,
