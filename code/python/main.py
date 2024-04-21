@@ -40,7 +40,8 @@ def main():
             f.write("\n")
             f.write(block[1])
             f.write("\n")
-            f.write(block[2])
+            for tx in block[2]:
+                f.write(tx)
             f.write("\n")
             is_mined = True
         else:
