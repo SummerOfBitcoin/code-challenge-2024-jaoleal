@@ -36,12 +36,13 @@ def main():
         block_hash = sha256(sha256(block_header.encode()).digest()).hexdigest()
         if block_hash < difficulty_hash:
             block = bb_mod.build_block(block_header, included_txs, coinbase)
-            print(block[0])
-            print()
-            print(block[1])
-            print()
-            print(block[2])
-            print()
+            f = open("./output.txt", "w")
+            f.write(block[0])
+            f.write("\n")
+            f.write(block[1])
+            f.write("\n")
+            f.write(block[2])
+            f.write("\n")
             is_mined = True
         else:
             nonce += 1
