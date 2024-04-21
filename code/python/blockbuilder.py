@@ -10,7 +10,7 @@ def build_block(block_header, txids, coinbase, coinbaseid):
         split_tx = txser.serialize_tx_data(txmod.get_tx_info(txid))
         for part in split_tx:
             txs += part
-    txids.insert(0, coinbaseid)
+    txids.insert(0, coinbaseid.hex())
     return block, coinbase.hex(), txids
 
 def build_coinbase_tx(fee):
