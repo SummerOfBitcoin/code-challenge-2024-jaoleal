@@ -1,9 +1,12 @@
+import calendar
 from hashlib import sha256
+import time
 from tx import tx_knapsack as knap_mod, transactions as tx_mod, serialization as ser
 import blockbuilder as bb_mod
 def main():
     version = "00000020"
-    timestamp = 1710997192
+    gmt = time.gmtime()
+    timestamp = calendar.timegm(gmt)
     difficulty = "0000ffff00000000000000000000000000000000000000000000000000000000"
     previous_block = "0000000000000000000000000000000000000000000000000000000000000000"
     difficulty_hash = bytes.fromhex(difficulty)
@@ -24,7 +27,6 @@ def main():
     ##before entering the merkle root, the txids have to be inverted
     for i in range(len(included_txs)):
         included_txs[i] = ser.invert_bytes(included_txs[i])
-    print(included_txs)
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     included_txs.remove(coinbaseid)
     for i in range(len(included_txs)):
