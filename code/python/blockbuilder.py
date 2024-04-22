@@ -59,12 +59,10 @@ def merkle_root(txids,coinbase = 0, first_wave = True):
         if first_wave:
             #If the first txid is not coinbase, we need to calculate the hash of the of the first tx
             if not txids[i] == coinbase:
-                tx_info1 = txmod.get_tx_info(txids[i])
-                ser1 = txser.serialize_tx_data(tx_info1)
-                hash1 = h.sha256(h.sha256(ser1[0]+ ser1[2]).digest()).digest()
-            tx_info2 = txmod.get_tx_info(txids[i + 1])
-            ser2 = txser.serialize_tx_data(tx_info2)
-            hash2 = h.sha256(h.sha256(ser2[0]+ ser2[2]).digest()).digest()
+                ser1 = bytes.fromhex(txids[i])
+                hash1 = h.sha256(h.sha256(ser1).digest()).digest()
+            ser2 = bytes.fromhex(txids[i + 1])
+            hash2 = h.sha256(h.sha256(ser2).digest()).digest()
         new_txids.append(h.sha256(hash1 + hash2).digest())
         
     return merkle_root(new_txids,0, False)

@@ -8,7 +8,8 @@ def tx_KISS(tx_list, remaining_size):
         if used_size + sorted_tx_list[i][1] <= remaining_size:
             used_size += sorted_tx_list[i][1]
             fee += sorted_tx_list[i][0]
-            used_tx_id.insert(len(used_tx_id),sorted_tx_list[i][2])
+            tx_id = sorted_tx_list[i][2].replace(".json", "")
+            used_tx_id.insert(len(used_tx_id),tx_id)
         else:
             break
     #i have to keep track in the used txs, so i can include 
