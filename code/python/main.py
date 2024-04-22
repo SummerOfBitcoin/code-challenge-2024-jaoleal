@@ -15,7 +15,6 @@ def main():
     for entry in entries:
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 1000000 - 100)
-
     coinbase = bb_mod.build_coinbase_tx(fee)
     #concatenate transactions and sig  + locktime 
     coinbase = coinbase[0] + coinbase[2]
@@ -38,14 +37,13 @@ def main():
         if block_hash < difficulty_hash:
             block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)
             f = open("../../output.txt", "w")
-            print(block_header)
             f.write(block[0])
             f.write("\n")
-            f.write(block[1])
+            f.write(block[2])
             f.write("\n")
-            for tx in block[2]:
-                tx.replace(".json", "")
+            for tx in block[3]:
                 f.write(tx)
+                f.write("\n")
             f.write("\n")
             is_mined = True
         else:

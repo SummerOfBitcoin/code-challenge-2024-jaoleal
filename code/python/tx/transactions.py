@@ -18,8 +18,13 @@ def valid_tx_values(tx_id):
     return [fee, get_tx_size(tx_info), tx_id]
 
 def get_tx_size(tx_info):
+    transactions = ser.serialize_tx_data(tx_info)
+    sigs = transactions[0]
+    wit = transactions[1]
+    locktime = transactions[2]
+    to_include = sigs + locktime
     #will return the size of the serialized tx in bytes
-    return sys.getsizeof(ser.serialize_tx_data(tx_info))
+    return sys.getsizeof(to_include)
 
 def get_tx_info(tx_id):
     #will return the json raw data or False if 

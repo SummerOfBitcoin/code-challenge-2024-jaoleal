@@ -8,8 +8,9 @@ def tx_KISS(tx_list, remaining_size):
         if used_size + sorted_tx_list[i][1] <= remaining_size:
             used_size += sorted_tx_list[i][1]
             fee += sorted_tx_list[i][0]
-            used_tx_id.append(sorted_tx_list[i][2])
-
+            used_tx_id.insert(len(used_tx_id),sorted_tx_list[i][2])
+        else:
+            break
     #i have to keep track in the used txs, so i can include 
     # them on the block.
 

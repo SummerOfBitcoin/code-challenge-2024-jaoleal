@@ -4,14 +4,14 @@ import tx.transactions as txmod
 import tx.serialization as txser
 
 def build_block(block_header, txids, coinbase, coinbaseid):
-    block = block_header + ((len(txids) + 1).to_bytes(4, byteorder='big')).hex()
-    txs = bytearray()
-    for txid in txids:
-        split_tx = txser.serialize_tx_data(txmod.get_tx_info(txid))
-        for part in split_tx:
-            txs += part
+    tx_count = ((len(txids) + 1).to_bytes(4, byteorder='big')).hex()
+    ids = []
+    for i in range(len(txids)):
+        buff =str(txids[i])
+        buff.replace(".json", "")
+        ids.insert(len(ids),buff)
     txids.insert(0, coinbaseid.hex())
-    return block, coinbase.hex(), txids
+    return block_header,tx_count, coinbase.hex(), ids
 
 def build_coinbase_tx(fee):
    tx_json = """
@@ -70,7 +70,6 @@ def merkle_root(txids,coinbase = 0, first_wave = True):
     return merkle_root(new_txids,0, False)
 
 def build_bits(difficulty):
-    print(difficulty)
     # convert the difficulty to shorty format
     # the function input is the difficulty in hex format
     difficulty = bytes.fromhex(difficulty)
