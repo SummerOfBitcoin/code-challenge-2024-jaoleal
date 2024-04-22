@@ -3,6 +3,7 @@ import struct
 def invert_bytes(data):
     for i in range(0, len(data), 2):
         data = data[:i] + data[i+1] + data[i] + data[i+2:]
+    data = data[::-1]
     return data
 
 def compact_size(integer):

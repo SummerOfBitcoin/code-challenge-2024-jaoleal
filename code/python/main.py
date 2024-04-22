@@ -16,12 +16,22 @@ def main():
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 1000000 - 100)
     coinbase = bb_mod.build_coinbase_tx(fee)
-    #concatenate transactions and sig  + locktime 
+    #concatenate transactions and sig  + locktime
     coinbase = coinbase[0] + coinbase[2]
     coinbaseid = sha256(sha256(coinbase).digest()).digest()
+    
+
+    ##before entering the merkle root, the txids have to be inverted
+    for i in range(len(included_txs)):
+        included_txs[i] = ser.invert_bytes(included_txs[i])
+
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     #for some reason python decides now that will use pointers to list
     included_txs.remove(coinbaseid)
+    #invert the coinbaseid after included in the merkle root
+    coinbaseid = ser.invert_bytes(coinbaseid.hex())
+
+
     timestamp = timestamp.to_bytes(4, byteorder='little')
     timestamp = timestamp.hex()
     merkle_root = merkle_root.hex()
@@ -37,7 +47,7 @@ def main():
         block_hash = sha256(sha256(block_header).digest()).digest()
         block_header = block_header.hex()
         block_hash = block_hash.hex()
-        block_hash_inverse = block_hash[::-1]
+        block_hash_inverse = ser.invert_bytes(block_hash)
         
         if block_hash_inverse < difficulty_hash:
             block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)

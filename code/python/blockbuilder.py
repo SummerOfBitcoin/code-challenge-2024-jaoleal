@@ -10,7 +10,7 @@ def build_block(block_header, txids, coinbase, coinbaseid):
         buff =str(txids[i])
         buff.replace(".json", "")
         ids.insert(len(ids),buff)
-    txids.insert(0, coinbaseid.hex())
+    ids.insert(0, coinbaseid)
     return block_header,tx_count, coinbase.hex(), ids
 
 def build_coinbase_tx(fee):
@@ -47,24 +47,22 @@ def merkle_root(txids,coinbase = 0, first_wave = True):
         return txids[0]
     new_txids = []
     for i in range(0, len(txids), 2):
-        if i+1 >= len(txids):
-            break
         hash1 = txids[i]
-        if i + 1 >= len(txids):
+        if i+1 >= len(txids):
             hash2 = txids[i]
         else:
             hash2 = txids[i+1]
-
+        
         #if is the first wave, we need to calculate the hash of the txs
         if first_wave:
             #If the first txid is not coinbase, we need to calculate the hash of the of the first tx
             if not txids[i] == coinbase:
-                ser1 = bytes.fromhex(txids[i])
-                hash1 = h.sha256(h.sha256(ser1).digest()).digest()
-            ser2 = bytes.fromhex(txids[i + 1])
-            hash2 = h.sha256(h.sha256(ser2).digest()).digest()
-        new_txids.append(h.sha256(hash1 + hash2).digest())
-        
+                hash1 = bytes.fromhex(txids[i])
+            if i+1 >= len(txids):
+                hash2 = bytes.fromhex(txids[i])
+            else:    
+                hash2 = bytes.fromhex(txids[i + 1])
+        new_txids.append((h.sha256(h.sha256(hash1 + hash2).digest()).digest()))
     return merkle_root(new_txids,0, False)
 
 def build_bits(difficulty):
