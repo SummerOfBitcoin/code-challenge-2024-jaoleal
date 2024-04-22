@@ -1,5 +1,5 @@
 from hashlib import sha256
-from tx import tx_knapsack as knap_mod, transactions as tx_mod
+from tx import tx_knapsack as knap_mod, transactions as tx_mod, serialization as ser
 import blockbuilder as bb_mod
 def main():
     version = "00000020"
@@ -37,9 +37,9 @@ def main():
         block_hash = sha256(sha256(block_header).digest()).digest()
         block_header = block_header.hex()
         block_hash = block_hash.hex()
-        if block_hash < difficulty_hash:
-            print(block_hash)
-            print(difficulty_hash)
+        block_hash_inverse = block_hash[::-1]
+        
+        if block_hash_inverse < difficulty_hash:
             block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)
             f = open("../../output.txt", "w")
             f.write(block[0])
