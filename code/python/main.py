@@ -42,6 +42,7 @@ def main():
     merkle_root = merkle_root.hex()
     nonce = 0
     bits = bb_mod.build_bits(difficulty)
+    bits = ser.invert_bytes(bits)
     is_mined = False
     while not is_mined:
         
