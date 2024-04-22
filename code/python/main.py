@@ -24,10 +24,13 @@ def main():
     ##before entering the merkle root, the txids have to be inverted
     for i in range(len(included_txs)):
         included_txs[i] = ser.invert_bytes(included_txs[i])
-
+    print(included_txs)
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
-    #for some reason python decides now that will use pointers to list
     included_txs.remove(coinbaseid)
+    for i in range(len(included_txs)):
+        included_txs[i] = ser.invert_bytes(included_txs[i])
+    #for some reason python decides now that will use pointers to list
+    
     #invert the coinbaseid after included in the merkle root
     coinbaseid = ser.invert_bytes(coinbaseid.hex())
 
