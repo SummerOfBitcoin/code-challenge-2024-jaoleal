@@ -1,6 +1,5 @@
 import calendar
 from hashlib import sha256
-import json
 import time
 from tx import tx_knapsack as knap_mod, transactions as tx_mod, serialization as ser
 import blockbuilder as bb_mod
@@ -19,12 +18,16 @@ def main():
     for entry in entries:
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 1000000 - 100)
-    coinbase = bb_mod.build_coinbase_tx(fee)
     #concatenate version, transactions and sig  + locktime
-    coinbase = coinbase[1] + coinbase[2] + coinbase[4]
-    coinbaseid = sha256(sha256(coinbase).digest()).digest()
     
 
+    
+    witnessroot = bb_mod.wmerkle_root(entries, 0, True)
+    
+    coinbase = bb_mod.build_coinbase_tx(fee, witnessroot)
+    coinbaseid = coinbase[1]
+    coinbase = coinbase[0]
+    
     ##before entering the merkle root, the txids have to be inverted
     for i in range(len(included_txs)):
         included_txs[i] = tx_mod.get_tx_id(included_txs[i])

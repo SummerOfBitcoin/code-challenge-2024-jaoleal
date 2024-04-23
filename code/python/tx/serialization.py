@@ -79,6 +79,6 @@ def serialize_tx_data(tx_data):
                 witness.extend(bytes.fromhex(w))
     if is_segwit:
         #if is segwit, concatenate the marker and flag to the version
-        marker = b'\x00\x01'
+        marker = bytes.fromhex("0001")
         return is_segwit, version, marker, serialized_tx_data, witness, locktime
     return is_segwit, version, serialized_tx_data, witness, locktime
