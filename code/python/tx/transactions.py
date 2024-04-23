@@ -1,7 +1,14 @@
+from hashlib import sha256
 import json
 import os
 import sys
-import tx.serialization as ser 
+import tx.serialization as ser
+def get_tx_id(tx_filename):
+    tx_info = get_tx_info(tx_filename + ".json")
+    tx_ser = ser.serialize_tx_data(tx_info)
+    tx_ser = tx_ser[0] + tx_ser[1] + tx_ser[3]
+    hash = sha256(sha256(tx_ser).digest()).digest()
+    return hash.hex()
 def valid_tx_values(tx_id):
     
     # get raw json data
@@ -19,10 +26,11 @@ def valid_tx_values(tx_id):
 
 def get_tx_size(tx_info):
     transactions = ser.serialize_tx_data(tx_info)
-    sigs = transactions[0]
-    wit = transactions[1]
-    locktime = transactions[2]
-    to_include = sigs + locktime
+    version = transactions[0]
+    tx = transactions[1]
+    wit = transactions[2]
+    locktime = transactions[3]
+    to_include = version + tx  + locktime
     #will return the size of the serialized tx in bytes
     return sys.getsizeof(to_include)
 

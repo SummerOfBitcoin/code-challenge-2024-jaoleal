@@ -9,12 +9,10 @@ def test_serialization():
     tx_info = txmod.get_tx_info(entry + ".json")
     ser = txser.serialize_tx_data(tx_info)
     ser_hex = ser[0].hex() + ser[1].hex() + ser[3].hex()
-    hash1 = h.sha256(bytes.fromhex(ser_hex)).digest()
-    hash2 = h.sha256(hash1).digest()
+    hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
     hash = txser.invert_bytes(hash2.hex())
-    print(hash)
     hash = h.sha256(bytes.fromhex(hash)).digest()
-    hash =  hash.hex()
+    hash = hash.hex()
 
     assert hash == "0a70cacb1ac276056e57ebfb0587d2091563e098c618eebf4ed205d123a3e8c4"
 

@@ -19,21 +19,20 @@ def main():
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 1000000 - 100)
     coinbase = bb_mod.build_coinbase_tx(fee)
-    #concatenate transactions and sig  + locktime
-    coinbase = coinbase[0] + coinbase[2]
+    #concatenate version, transactions and sig  + locktime
+    coinbase = coinbase[0] + coinbase[1] + coinbase[3]
     coinbaseid = sha256(sha256(coinbase).digest()).digest()
     
 
     ##before entering the merkle root, the txids have to be inverted
     for i in range(len(included_txs)):
-        included_txs[i] = ser.invert_bytes(included_txs[i])
+        included_txs[i] = tx_mod.get_tx_id(included_txs[i])
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     included_txs.remove(coinbaseid)
+
+    ##inverting all my txids, so it can be exposed as the real txid
     for i in range(len(included_txs)):
         included_txs[i] = ser.invert_bytes(included_txs[i])
-    #for some reason python decides now that will use pointers to list
-    
-    #invert the coinbaseid after included in the merkle root
     coinbaseid = ser.invert_bytes(coinbaseid.hex())
 
 
