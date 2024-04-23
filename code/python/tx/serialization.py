@@ -36,7 +36,7 @@ def serialize_tx_data(tx_data):
     inputs = input_count
     
     for input_obj in tx_data['vin']:
-        prevout_id = bytes.fromhex(input_obj['txid'])
+        prevout_id = bytes.fromhex(invert_bytes(input_obj['txid']))
         vout = struct.pack('<I', input_obj['vout'])
         inputs.extend(prevout_id)
         inputs.extend(vout)

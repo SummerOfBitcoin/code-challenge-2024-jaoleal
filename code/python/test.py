@@ -10,6 +10,7 @@ def test_serialization():
     ser = txser.serialize_tx_data(tx_info)
     ser_hex = ser[0].hex() + ser[1].hex() + ser[3].hex()
     hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
+    print(hash2.hex())
     hash = txser.invert_bytes(hash2.hex())
     hash = h.sha256(bytes.fromhex(hash)).digest()
     hash = hash.hex()
