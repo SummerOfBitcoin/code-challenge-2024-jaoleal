@@ -5,17 +5,32 @@ import tx.serialization as txser
 import hashlib as h
 
 def test_serialization():
+    #this is the test for a non-segwit transaction
     entry = "0a70cacb1ac276056e57ebfb0587d2091563e098c618eebf4ed205d123a3e8c4"
     tx_info = txmod.get_tx_info(entry + ".json")
     ser = txser.serialize_tx_data(tx_info)
-    ser_hex = ser[0].hex() + ser[1].hex() + ser[3].hex()
+    if ser[0]:
+      ser_hex = ser[1].hex() + ser[3].hex() + ser[4].hex()
+    else: 
+      ser_hex = ser[1].hex() + ser[2].hex() + ser[4].hex()
     hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
-    print(hash2.hex())
     hash = txser.invert_bytes(hash2.hex())
     hash = h.sha256(bytes.fromhex(hash)).digest()
     hash = hash.hex()
-
-    assert hash == "0a70cacb1ac276056e57ebfb0587d2091563e098c618eebf4ed205d123a3e8c4"
+    assert hash == entry
+    #this test covers the a segwit one
+    entry = "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a"
+    tx_info = txmod.get_tx_info(entry + ".json")
+    ser = txser.serialize_tx_data(tx_info)
+    if ser[0]:
+        ser_hex = ser[1].hex() + ser[3].hex() + ser[5].hex()
+    else:
+      ser_hex = ser[1].hex() + ser[2].hex() + ser[4].hex()
+    hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
+    hash = txser.invert_bytes(hash2.hex())
+    hash = h.sha256(bytes.fromhex(hash)).digest()
+    hash = hash.hex()
+    assert hash == entry
 
 
 def test_get_tx_info():

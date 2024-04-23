@@ -20,7 +20,7 @@ def main():
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 1000000 - 100)
     coinbase = bb_mod.build_coinbase_tx(fee)
     #concatenate version, transactions and sig  + locktime
-    coinbase = coinbase[0] + coinbase[1] + coinbase[3]
+    coinbase = coinbase[1] + coinbase[2] + coinbase[4]
     coinbaseid = sha256(sha256(coinbase).digest()).digest()
     
 

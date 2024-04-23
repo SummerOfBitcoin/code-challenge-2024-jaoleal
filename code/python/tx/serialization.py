@@ -34,15 +34,19 @@ def serialize_tx_data(tx_data):
     output_count = bytearray(compact_size(len(tx_data['vout'])))
     # Serialize the inputs
     inputs = input_count
-    
     for input_obj in tx_data['vin']:
+        has_witness = check_segwit(input_obj)
         prevout_id = bytes.fromhex(invert_bytes(input_obj['txid']))
         vout = struct.pack('<I', input_obj['vout'])
+        if not has_witness:
+            script_size = compact_size(len(bytes.fromhex(input_obj['scriptsig'])))
+            script = bytes.fromhex(input_obj['scriptsig'])
+        else:
+            script_size = b'\x00'
+            script = b''
+        sequence = struct.pack('<L', input_obj['sequence'])
         inputs.extend(prevout_id)
         inputs.extend(vout)
-        script_size = compact_size(len(bytes.fromhex(input_obj['scriptsig'])))
-        script = bytes.fromhex(input_obj['scriptsig'])
-        sequence = struct.pack('<L', input_obj['sequence'])
         inputs.extend(script_size)
         inputs.extend(script)
         inputs.extend(sequence)
@@ -76,5 +80,5 @@ def serialize_tx_data(tx_data):
     if is_segwit:
         #if is segwit, concatenate the marker and flag to the version
         marker = b'\x00\x01'
-        return version, marker, serialized_tx_data, witness, locktime
-    return version, serialized_tx_data, witness, locktime
+        return is_segwit, version, marker, serialized_tx_data, witness, locktime
+    return is_segwit, version, serialized_tx_data, witness, locktime

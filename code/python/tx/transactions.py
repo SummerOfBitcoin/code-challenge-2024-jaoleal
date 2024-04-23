@@ -6,8 +6,11 @@ import tx.serialization as ser
 def get_tx_id(tx_filename):
     tx_info = get_tx_info(tx_filename + ".json")
     tx_ser = ser.serialize_tx_data(tx_info)
-    tx_ser = tx_ser[0] + tx_ser[1] + tx_ser[3]
-    hash = sha256(sha256(tx_ser).digest()).digest()
+    if tx_ser[0]:
+        tx_ser_hex = tx_ser[1].hex() + tx_ser[3].hex() + tx_ser[5].hex()
+    else:
+      tx_ser_hex = tx_ser[1].hex() + tx_ser[2].hex() + tx_ser[4].hex()
+    hash = sha256(sha256(bytes.fromhex(tx_ser_hex)).digest()).digest()
     return hash.hex()
 def valid_tx_values(tx_id):
     
@@ -25,14 +28,13 @@ def valid_tx_values(tx_id):
     return [fee, get_tx_size(tx_info), tx_id]
 
 def get_tx_size(tx_info):
-    transactions = ser.serialize_tx_data(tx_info)
-    version = transactions[0]
-    tx = transactions[1]
-    wit = transactions[2]
-    locktime = transactions[3]
-    to_include = version + tx  + locktime
+    tx_ser = ser.serialize_tx_data(tx_info)
+    if tx_ser[0]:
+        ser_hex = tx_ser[1].hex() + tx_ser[3].hex() + tx_ser[5].hex()
+    else:
+      ser_hex = tx_ser[1].hex() + tx_ser[2].hex() + tx_ser[4].hex()
     #will return the size of the serialized tx in bytes
-    return sys.getsizeof(to_include)
+    return sys.getsizeof(ser_hex)
 
 def get_tx_info(tx_id):
     #will return the json raw data or False if 
