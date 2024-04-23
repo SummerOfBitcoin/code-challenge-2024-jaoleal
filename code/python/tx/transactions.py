@@ -31,10 +31,10 @@ def get_tx_size(tx_info):
     tx_ser = ser.serialize_tx_data(tx_info)
     if tx_ser[0]:
         ser_hex = tx_ser[1].hex() + tx_ser[3].hex() + tx_ser[5].hex()
+        return (sys.getsizeof(ser_hex) * 4) + sys.getsizeof(tx_ser[2].hex() + tx_ser[4].hex())
     else:
-      ser_hex = tx_ser[1].hex() + tx_ser[2].hex() + tx_ser[4].hex()
+      return (sys.getsizeof(tx_ser[1].hex() + tx_ser[2].hex() + tx_ser[3].hex()) * 4)
     #will return the size of the serialized tx in bytes
-    return sys.getsizeof(ser_hex)
 
 def get_tx_info(tx_id):
     #will return the json raw data or False if 
