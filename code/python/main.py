@@ -57,6 +57,7 @@ def main():
         if block_hash_inverse < difficulty_hash:
             block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)
             f = open("../../output.txt", "w")
+            tx_output = open ("../../tx_output.txt", "w")
             f.write(block[0])
             f.write("\n")
             f.write(block[2])
@@ -64,6 +65,9 @@ def main():
             for tx in block[3]:
                 f.write(tx)
                 f.write("\n")
+                #tx_output.write(tx)
+                #tx_output.write("\n")
+                
             f.write("\n")
             is_mined = True
         else:

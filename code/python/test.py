@@ -17,21 +17,23 @@ def test_serialization():
     hash = txser.invert_bytes(hash2.hex())
     hash = h.sha256(bytes.fromhex(hash)).digest()
     hash = hash.hex()
+    
     assert hash == entry
     #this test covers the a segwit one
     entry = "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a"
     tx_info = txmod.get_tx_info(entry + ".json")
     ser = txser.serialize_tx_data(tx_info)
     if ser[0]:
-        ser_hex = ser[1].hex() + ser[3].hex() + ser[5].hex()
+      ser_hex = ser[1].hex() + ser[3].hex() + ser[5].hex()
     else:
       ser_hex = ser[1].hex() + ser[2].hex() + ser[4].hex()
     hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
     hash = txser.invert_bytes(hash2.hex())
+    print(hash)
+    assert hash == "bec11fb2fd836e5fb28996a8ae2008d59142f781bfbfa70a31447af315e89aec"
     hash = h.sha256(bytes.fromhex(hash)).digest()
     hash = hash.hex()
     assert hash == entry
-
 
 def test_get_tx_info():
     tx_id = "0a3fd98f8b3d89d2080489d75029ebaed0c8c631d061c2e9e90957a40e99eb4c.json"
