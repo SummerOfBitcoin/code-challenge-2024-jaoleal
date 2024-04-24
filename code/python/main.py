@@ -20,18 +20,19 @@ def main():
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
     #concatenate version, transactions and sig  + locktime
     print("Transactions included fee: " + str(fee))
-
-
-    witnessroot = bb_mod.wmerkle_root(entries, True)
-    print("Witness root builded")
+    witnessroot = bb_mod.wmerkle_root(included_txs, True)
     
+    if included_txs[0] == bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000"):
+        included_txs.remove(included_txs[0])
+    print("Witness root builded")
+    for i in range(len(included_txs)):
+        included_txs[i] = tx_mod.get_tx_id(included_txs[i])
     coinbase = bb_mod.build_coinbase_tx(fee, witnessroot)
     coinbaseid = coinbase[1]
     coinbase = coinbase[0]
     print("Coinbase builded")
     ##before entering the merkle root, the txids have to be inverted
-    for i in range(len(included_txs)):
-        included_txs[i] = tx_mod.get_tx_id(included_txs[i])
+    
 
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     included_txs.remove(coinbaseid)

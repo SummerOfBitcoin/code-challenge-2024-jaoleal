@@ -37,19 +37,9 @@ def build_coinbase_tx(fee, witness_root):
         """
     tx_data = json.loads(tx_json)
     tx_data["vout"][0]["value"] = fee + 50
-    tx_data["vout"].insert(1, json.loads(
-        """ 
-            {
-            "value": 0,
-            "scriptpubkeysize": "43",
-            "scriptpubkey": ""
-            }
-            """
-    ))
     witness_hash = h.sha256(h.sha256(witness_root +  bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000")).digest()).digest()
-    tx_data["vout"][1]["scriptpubkey"] = bytes.fromhex("6a24aa21a9ed").hex() + witness_hash.hex()
+    tx_data["vout"][0]["scriptpubkey"] = bytes.fromhex("6a24aa21a9ed").hex() + witness_hash.hex()
     witness = bytes.fromhex("01200000000000000000000000000000000000000000000000000000000000000000")
-
     ret = txser.serialize_tx_data(tx_data)
     marker =  bytes.fromhex("0001")
     coinbaseid = h.sha256(h.sha256(ret[1] + ret[2] + ret[4]).digest()).digest()
@@ -100,7 +90,7 @@ def wmerkle_root(txids, first_wave = True, ):
         if first_wave:
             #If the first txid is not coinbase, we need to calculate the hash of the of the first tx
             if txids[i] != bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000"):
-                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i]))
+                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i] + ".json"))
                 if txid[0]:
                     hash1 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
                 else:
@@ -109,20 +99,19 @@ def wmerkle_root(txids, first_wave = True, ):
             else:
                 hash1 = txids[i]
             if i+1 >= len(txids):
-                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i]))
+                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i] + ".json"))
                 if txid[0]:
                     hash2 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
                 else:
                     hash2 = txid[1].hex() + txid[2].hex()+ txid[4].hex()
                 hash2 = h.sha256(h.sha256(bytes.fromhex(hash2)).digest()).digest()
             else:
-                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i + 1]))
+                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i + 1] + ".json"))
                 if txid[0]:
                     hash2 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
                 else:
                     hash2 = txid[1].hex() + txid[2].hex()+ txid[4].hex()
                 hash2 = h.sha256(h.sha256(bytes.fromhex(hash2)).digest()).digest()
-
         new_txids.append((h.sha256(h.sha256(hash1 + hash2).digest()).digest()))
     return merkle_root(new_txids,0, False)
 

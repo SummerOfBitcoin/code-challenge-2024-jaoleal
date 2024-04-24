@@ -6,10 +6,11 @@ import blockbuilder as bbmod
 import hashlib as h
 
 def test_witness_commitment():
-    entries = ["00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a.json"]
-    witness_root = bbmod.wmerkle_root(entries, True)
-    print(witness_root.hex())
-    assert witness_root.hex() == "87072b2e04c8a094b78525891c788c2e15c7b97826082b3099b6824d1c365141"
+    entries = ["82f9f96db7bdbb9e70626747632e373b34eefd50d613dfea7092744169591b6e","7cb2a4f55245bae141a5d6ad51c08d7a9fdf2c2b905e4d97639ed80b82e69800","a9e537569db3c64340ed5abcdd983e9bb1b6ad6f90c93bc80d31c5cc0490bcea","4ab3cc4296fee78153d60d2884323a84260157db0b83a72309272f109ad9dd32","c2aedaae370101d6ca170f206e74222ae934afefe0e621b79b6290b919526563","2d5eb3d5dd4df76bf88f2f89c49c98be5552c7800c9ce20bb60a5496a23ec25f","7e4a05a078f4d7afcd686d117e319f8f14d69be43a0609bb9a9cb36a75a88abb"]
+    for i in range(len(entries)):
+       entries[i] = bytes.fromhex(txser.invert_bytes(entries[i]))
+    witness_root = bbmod.wmerkle_root(entries, False)
+    assert witness_root.hex() == "8835c8a2f6d1d85b9a3eaa3922d196f91356542417c9a3e849e41ef8ab3c616f"
 
 def test_wtxid():
     entry = "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a"
