@@ -46,7 +46,8 @@ def build_coinbase_tx(fee, witness_root):
             }
             """
     ))
-    tx_data["vout"][1]["scriptpubkey"] = witness_root.hex()
+    witness_hash = h.sha256(h.sha256(witness_root +  bytes.fromhex ("0000000000000000000000000000000000000000000000000000000000000000")).digest()).digest()
+    tx_data["vout"][1]["scriptpubkey"] = bytes.fromhex("6a24aa21a9ed").hex() + witness_hash.hex()
     witness = bytes.fromhex("01200000000000000000000000000000000000000000000000000000000000000000")
 
     ret = txser.serialize_tx_data(tx_data)
@@ -81,10 +82,8 @@ def merkle_root(txids,coinbase = 0, first_wave = True, ):
         new_txids.append((h.sha256(h.sha256(hash1 + hash2).digest()).digest()))
     return merkle_root(new_txids,0, False)
 
-def wmerkle_root(txids,coinbase = 0, first_wave = True, ):
+def wmerkle_root(txids, first_wave = True, ):
     #The default value for coinbase is 0, if zero, does not include coinbase
-    if coinbase != 0:
-        txids.insert(0, coinbase)
     if len(txids)  <= 1:
         return txids[0]
     new_txids = []
@@ -98,23 +97,23 @@ def wmerkle_root(txids,coinbase = 0, first_wave = True, ):
         #if is the first wave, we need to calculate the hash of the txs
         if first_wave:
             #If the first txid is not coinbase, we need to calculate the hash of the of the first tx
-            if not txids[i] == coinbase:
 
-                txid = txser.serialize_tx_data(txmod.get_tx_info( txids[i]))
-                if txid[0]:
-                    hash1 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
-                else:
-                    hash1 = txid[1].hex() + txid[2].hex()+ txid[4].hex()
-                hash1 = bytes.fromhex(hash1)
+
+            txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i]))
+            if txid[0]:
+                hash1 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
+            else:
+                hash1 = txid[1].hex() + txid[2].hex()+ txid[4].hex()
+            hash1 = bytes.fromhex(hash1)
             if i+1 >= len(txids):
-                txid = txser.serialize_tx_data(txmod.get_tx_info( txids[i]))
+                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i]))
                 if txid[0]:
                     hash2 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
                 else:
                     hash2 = txid[1].hex() + txid[2].hex()+ txid[4].hex()
                 hash2 = bytes.fromhex(hash2)
             else:
-                txid = txser.serialize_tx_data(txmod.get_tx_info( txids[i + 1 ]))
+                txid = txser.serialize_tx_data(txmod.get_tx_info(txids[i + 1]))
                 if txid[0]:
                     hash2 = txid[1].hex() + txid[2].hex() + txid[3].hex() + txid[4].hex() + txid[5].hex()
                 else:

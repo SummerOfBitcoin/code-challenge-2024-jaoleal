@@ -19,10 +19,10 @@ def main():
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
     #concatenate version, transactions and sig  + locktime
-    
 
-    
-    witnessroot = bb_mod.wmerkle_root(entries, 0, True)
+
+
+    witnessroot = bb_mod.wmerkle_root(entries, True)
     
     coinbase = bb_mod.build_coinbase_tx(fee, witnessroot)
     coinbaseid = coinbase[1]
