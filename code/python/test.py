@@ -2,7 +2,26 @@ import json
 import tx.transactions as txmod
 import tx.bitcoin_script as btcscript
 import tx.serialization as txser
+import blockbuilder as bbmod
 import hashlib as h
+
+def test_witness_commitment():
+    entries = ["00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a.json"]
+    witness_root = bbmod.wmerkle_root(entries, True)
+    print(witness_root.hex())
+    assert witness_root.hex() == "87072b2e04c8a094b78525891c788c2e15c7b97826082b3099b6824d1c365141"
+
+def test_wtxid():
+    entry = "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a"
+    tx_info = txmod.get_tx_info(entry + ".json")
+    ser = txser.serialize_tx_data(tx_info)
+    if ser[0]:
+      ser_hex = ser[1].hex() + ser[2].hex() + ser[3].hex() + ser[4].hex() + ser[5].hex()
+    else:
+      ser_hex = ser[1].hex() + ser[2].hex() + ser[4].hex()
+    hash2 = h.sha256(h.sha256(bytes.fromhex(ser_hex)).digest()).digest()
+    hash = txser.invert_bytes(hash2.hex())
+    assert hash == "5a1e17d86dabca58285dd00be376bf2d3242acf887e8bcbcda90b7217d3fb6b0"
 
 def test_serialization():
     #this is the test for a non-segwit transaction
