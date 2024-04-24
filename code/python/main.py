@@ -19,27 +19,28 @@ def main():
         registered_txs.append(tx_mod.valid_tx_values(entry))
     included_txs, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
     #concatenate version, transactions and sig  + locktime
-
+    print("Transactions included fee: " + str(fee))
 
 
     witnessroot = bb_mod.wmerkle_root(entries, True)
+    print("Witness root builded")
     
     coinbase = bb_mod.build_coinbase_tx(fee, witnessroot)
     coinbaseid = coinbase[1]
     coinbase = coinbase[0]
-    
+    print("Coinbase builded")
     ##before entering the merkle root, the txids have to be inverted
     for i in range(len(included_txs)):
         included_txs[i] = tx_mod.get_tx_id(included_txs[i])
 
     merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
     included_txs.remove(coinbaseid)
-
+    print("Merkle root builded")
     ##inverting all my txids, so it can be exposed as the real txid
     for i in range(len(included_txs)):
         included_txs[i] = ser.invert_bytes(included_txs[i])
     coinbaseid = ser.invert_bytes(coinbaseid.hex())
-
+    print("Txids builded")
     timestamp = timestamp.to_bytes(4, byteorder='little')
     timestamp = timestamp.hex()
     merkle_root = merkle_root.hex()
@@ -75,7 +76,11 @@ def main():
             f.write("\n")
             is_mined = True
         else:
-            nonce += 1
+            if nonce + 1 >= 4294967295:
+                gmt = time.gmtime()
+                timestamp = calendar.timegm(gmt)
+            else:
+                nonce += 1
 
 
     
