@@ -19,7 +19,6 @@ def get_wtxid(tx_filename):
         tx_ser_hex = tx_ser[1] + tx_ser[2] + tx_ser[3] + tx_ser[4]+ tx_ser[5]
     else:
         tx_ser_hex = tx_ser[1] + tx_ser[2] + tx_ser[4]
-        print(tx_ser_hex.hex())
     hash = sha256(sha256(tx_ser_hex).digest()).digest()
     return hash.hex()
 def valid_tx_values(tx_id):
