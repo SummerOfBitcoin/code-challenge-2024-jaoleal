@@ -17,30 +17,26 @@ def main():
     registered_txs = list()
     for entry in entries:
         registered_txs.append(tx_mod.valid_tx_values(entry))
-    included_txs, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
+    included_txsfilename, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
     #concatenate version, transactions and sig  + locktime
+    wtxids = [bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000").hex()]
+    for i  in range(len(included_txsfilename)):
+        wtxids.append(tx_mod.get_wtxid(included_txsfilename[i]))
     print("Transactions included fee: " + str(fee))
-    witnessroot = bb_mod.wmerkle_root(included_txs, True)
-    
-    if included_txs[0] == bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000"):
-        included_txs.remove(included_txs[0])
+    witnessroot = bb_mod.wmerkle_root(wtxids, True)
     print("Witness root builded")
-    for i in range(len(included_txs)):
-        included_txs[i] = tx_mod.get_tx_id(included_txs[i])
     coinbase = bb_mod.build_coinbase_tx(fee, witnessroot)
     coinbaseid = coinbase[1]
     coinbase = coinbase[0]
     print("Coinbase builded")
-    ##before entering the merkle root, the txids have to be inverted
-    
-
-    merkle_root = bb_mod.merkle_root(included_txs, coinbaseid)
-    included_txs.remove(coinbaseid)
+    txids = [coinbaseid.hex()]
+    for i in range(len(included_txsfilename)):
+        txids.append(tx_mod.get_tx_id(included_txsfilename[i]))
+    merkle_root = bb_mod.merkle_root(txids)
     print("Merkle root builded")
-    ##inverting all my txids, so it can be exposed as the real txid
-    for i in range(len(included_txs)):
-        included_txs[i] = ser.invert_bytes(included_txs[i])
-    coinbaseid = ser.invert_bytes(coinbaseid.hex())
+    #inverting all my txids, so it can be exposed as the real txid
+    for i in range(len(txids)):
+        txids[i] = ser.invert_bytes(txids[i])
     print("Txids builded")
     timestamp = timestamp.to_bytes(4, byteorder='little')
     timestamp = timestamp.hex()
@@ -61,7 +57,7 @@ def main():
         block_hash_inverse = ser.invert_bytes(block_hash)
         
         if block_hash_inverse < difficulty_hash:
-            block = bb_mod.build_block(block_header, included_txs, coinbase,coinbaseid)
+            block = bb_mod.build_block(block_header, txids, coinbase,coinbaseid)
             f = open("../../output.txt", "w")
             tx_output = open ("../../tx_output.txt", "w")
             f.write(block[0])
