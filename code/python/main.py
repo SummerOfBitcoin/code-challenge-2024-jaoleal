@@ -17,7 +17,7 @@ def main():
     registered_txs = list()
     for entry in entries:
         registered_txs.append(tx_mod.valid_tx_values(entry))
-    included_txsfilename, fee = knap_mod.tx_KISS(registered_txs, 10000 - 320)
+    included_txsfilename, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
     #concatenate version, transactions and sig  + locktime
     wtxids = [bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000").hex()]
     for i  in range(len(included_txsfilename)):
