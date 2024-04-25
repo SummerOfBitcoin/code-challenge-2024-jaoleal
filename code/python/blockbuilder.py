@@ -42,7 +42,6 @@ def build_coinbase_tx(fee, witness_root):
     tx_data["vout"][0]["value"] = fee + 50
     tx_data["vout"][0]["scriptpubkey"] = tx_data["vout"][0]["scriptpubkey"]
     tx_data["vout"][1]["value"] = 0
-    print(witness_root.hex())
     witness_hash = h.sha256(h.sha256(witness_root +  bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000")).digest()).digest()
     tx_data["vout"][1]["scriptpubkey"] = str(bytes.fromhex("6a24aa21a9ed").hex() + witness_hash.hex())
     witness = bytes.fromhex("01200000000000000000000000000000000000000000000000000000000000000000")
