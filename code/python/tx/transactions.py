@@ -15,10 +15,9 @@ def get_tx_id(tx_filename):
 def get_wtxid(tx_filename):
     tx_info = get_tx_info(tx_filename + ".json")
     tx_ser = ser.serialize_tx_data(tx_info)
-    if tx_ser[0]:
-        tx_ser_hex = tx_ser[1] + tx_ser[2] + tx_ser[3] + tx_ser[4]+ tx_ser[5]
-    else:
-        tx_ser_hex = tx_ser[1] + tx_ser[2] + tx_ser[4]
+    tx_ser_hex = bytearray()
+    for i in range(1, len(tx_ser)):
+        tx_ser_hex.extend(tx_ser[i])
     hash = sha256(sha256(tx_ser_hex).digest()).digest()
     return hash.hex()
 def valid_tx_values(tx_id):

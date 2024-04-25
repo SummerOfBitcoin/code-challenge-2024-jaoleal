@@ -12,7 +12,7 @@ def compact_size(integer):
     elif integer < 65535:
         return b'\xfd' + struct.pack('<H', integer)
     elif integer < 4294967295:
-        return b'\xfe' + struct.pack('<L', integer)
+        return b'\xfe' + struct.pack('<I', integer)
     else:
         return b'\xff' + struct.pack('<Q', integer)
 

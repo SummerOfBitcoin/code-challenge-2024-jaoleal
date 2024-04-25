@@ -17,7 +17,7 @@ def main():
     registered_txs = list()
     for entry in entries:
         registered_txs.append(tx_mod.valid_tx_values(entry))
-    included_txsfilename, fee = knap_mod.tx_KISS(registered_txs, 4000000 - 320)
+    included_txsfilename, fee = knap_mod.tx_KISS(registered_txs, 10000 - 320)
     #concatenate version, transactions and sig  + locktime
     wtxids = [bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000").hex()]
     for i  in range(len(included_txsfilename)):
@@ -59,7 +59,6 @@ def main():
         if block_hash_inverse < difficulty_hash:
             block = bb_mod.build_block(block_header, txids, coinbase,coinbaseid)
             f = open("../../output.txt", "w")
-            tx_output = open ("../../tx_output.txt", "w")
             f.write(block[0])
             f.write("\n")
             f.write(block[2])
@@ -67,10 +66,6 @@ def main():
             for tx in block[3]:
                 f.write(tx)
                 f.write("\n")
-                #tx_output.write(tx)
-                #tx_output.write("\n")
-                
-            f.write("\n")
             is_mined = True
         else:
             if nonce + 1 >= 4294967295:
