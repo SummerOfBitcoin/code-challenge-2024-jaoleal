@@ -97,7 +97,7 @@ def wmerkle_root(txids, first_wave = True):
                 hash2 = bytes.fromhex(txids[i])
             else:
                 hash2 = bytes.fromhex(txids[i+1])
-        new_txids.append((h.sha256(h.sha256(hash1 + hash2).digest()).digest()))
+        new_txids.append(h.sha256(h.sha256(hash1 + hash2).digest()).digest())
     return merkle_root(new_txids,0, False)
 
 def build_bits(difficulty):

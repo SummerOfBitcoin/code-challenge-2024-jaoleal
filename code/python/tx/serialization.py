@@ -19,10 +19,10 @@ def compact_size(integer):
 def check_segwit(input_obj, is_list=False):
     if is_list:
         for input in input_obj:
-            if input["scriptsig"] == "":
+            if "witness" in input:
                 return True
         return False
-    elif input_obj["scriptsig"] == "":
+    elif "witness" in input_obj:
         return True
     return False
 
@@ -38,7 +38,7 @@ def serialize_tx_data(tx_data):
         has_witness = check_segwit(input_obj)
         prevout_id = bytes.fromhex(invert_bytes(input_obj['txid']))
         vout = struct.pack('<I', input_obj['vout'])
-        if not has_witness:
+        if "scriptsig" in input_obj:
             script_size = compact_size(len(bytes.fromhex(input_obj['scriptsig'])))
             script = bytes.fromhex(input_obj['scriptsig'])
         else:
@@ -69,7 +69,7 @@ def serialize_tx_data(tx_data):
     # Concatenate all serialized parts
     serialized_tx_data = bytearray()
     serialized_tx_data.extend(inputs) 
-    serialized_tx_data.extend(outputs) 
+    serialized_tx_data.extend(outputs)
     witness = bytearray()
     for input_obj in tx_data['vin']:
         if check_segwit(input_obj):
@@ -77,6 +77,8 @@ def serialize_tx_data(tx_data):
             for w in input_obj['witness']:
                 witness.extend(compact_size(len(bytes.fromhex(w))))
                 witness.extend(bytes.fromhex(w))
+        elif is_segwit:
+            witness.extend(b'\x00')
     if is_segwit:
         #if is segwit, concatenate the marker and flag to the version
         marker = bytes.fromhex("0001")
