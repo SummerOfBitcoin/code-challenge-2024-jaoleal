@@ -3,6 +3,9 @@ import json
 import os
 import sys
 import tx.serialization as ser
+
+#This function is used to get the txid of a transaction
+#txid is a hash of everything in the transaction, except the witness data
 def get_tx_id(tx_filename):
     tx_info = get_tx_info(tx_filename + ".json")
     tx_ser = ser.serialize_tx_data(tx_info)
@@ -12,6 +15,9 @@ def get_tx_id(tx_filename):
       tx_ser_hex = tx_ser[1].hex() + tx_ser[2].hex() + tx_ser[4].hex()
     hash = sha256(sha256(bytes.fromhex(tx_ser_hex)).digest()).digest()
     return hash.hex()
+
+#This function is used to get the wtxid of a transaction
+#Wtxid is a hash of everything in the transaction, including the witness data
 def get_wtxid(tx_filename):
     tx_info = get_tx_info(tx_filename + ".json")
     tx_ser = ser.serialize_tx_data(tx_info)
@@ -20,10 +26,11 @@ def get_wtxid(tx_filename):
         tx_ser_hex.extend(tx_ser[i])
     hash = sha256(sha256(tx_ser_hex).digest()).digest()
     return hash.hex()
+
 def valid_tx_values(tx_id):
-    
     # get raw json data
     tx_info = get_tx_info(tx_id)
+
     #this block of code is just for calculating the fee.
     in_value = 0
     out_value = 0
@@ -32,9 +39,12 @@ def valid_tx_values(tx_id):
     for out_values in tx_info["vout"]:
         out_value += out_values["value"]
     fee = in_value - out_value
-    #recursion for each input
+
     return [fee, get_tx_size(tx_info), tx_id]
 
+#will return the size of the serialized tx in bytes
+#the regular transaction data is multiplied by 4 
+#and the witness data remains the same as its byte size
 def get_tx_size(tx_info):
     tx_ser = ser.serialize_tx_data(tx_info)
     if tx_ser[0]:
@@ -43,12 +53,12 @@ def get_tx_size(tx_info):
         return (sys.getsizeof(default_data) * 4) + sys.getsizeof(witness_data)
     else:
       return (sys.getsizeof(tx_ser[1] + tx_ser[2] + tx_ser[4]) * 4)
-    #will return the size of the serialized tx in bytes
-
+    
 def get_tx_info(tx_id):
     #will return the json raw data or False if 
     #if does not found it
-    #
+
+
     #if input of the function is "all" will return
     #all tx_ids in the mempool
     path = "../../mempool/" + tx_id
@@ -60,23 +70,3 @@ def get_tx_info(tx_id):
         return False
 
     return json.load(open(path))
-
-def tx_syntax_validation(tx):
-    required_fields = ['txid', 'inputs', 'outputs']
-    if not all(field in tx for field in required_fields):
-        return False
-    if not isinstance(tx['txid'], str):
-        return False
-    for input in tx['inputs']:
-        required_input_fields = ['txid', 'index']
-        if not all(field in input for field in required_input_fields):
-            return False
-        if not isinstance(input['txid'], str) or not isinstance(input['index'], str):
-            return False
-    for output in tx['outputs']:
-        required_output_fields = ['address', 'value']
-        if not all(field in output for field in required_output_fields):
-            return False
-        if not isinstance(output['address'], str) or not isinstance(output['value'], (int, float)) or output['value'] <= 0:
-            return False
-    return True

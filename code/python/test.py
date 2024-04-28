@@ -1,6 +1,5 @@
 import json
 import tx.transactions as txmod
-import tx.bitcoin_script as btcscript
 import tx.serialization as txser
 import blockbuilder as bbmod
 import hashlib as h
@@ -100,8 +99,10 @@ def test_get_tx_info():
   ]
 }""")
 
+##needs to be implemented
 def test_btc_script():
-    interpreter = btcscript.BitcoinScriptInterpreter()
+    pass
+    interpreter = btcscript.execute_script("")
     stack = []
     tx_data = {'locktime': 1633649812, 'sequence': 4294967295}
 
