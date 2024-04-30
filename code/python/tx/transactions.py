@@ -54,18 +54,16 @@ def get_tx_size(tx_info):
     else:
       return (sys.getsizeof(tx_ser[1] + tx_ser[2] + tx_ser[4]) * 4)
     
-def get_tx_info(tx_id):
+def get_tx_info(tx_filename):
     #will return the json raw data or False if 
     #if does not found it
 
 
     #if input of the function is "all" will return
-    #all tx_ids in the mempool
-    path = "../../mempool/" + tx_id
-
-    if tx_id == "all":
+    #all tx_filenames in the mempool
+    if tx_filename == "all":
         return os.listdir("../../mempool/")
-    
+    path = "../../mempool/" + tx_filename
     if not (os.path.exists(path)):
         return False
 

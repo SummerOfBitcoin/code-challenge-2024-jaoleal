@@ -2,27 +2,16 @@
 To mine a block and get the maximum amout of sats i have to build to build the block header that consist in;
 - Version (at the moment, not specified, so i'll use 00000001)
 - Merkle root see [Making Merkle Root](#Making_The_Merkle_Root)
-- Timestamp I will use 1710997192
+- Timestamp 
+- previous block (that is all zeroes)
 - Difficulty target that is 0000ffff00000000000000000000000000000000000000000000000000000000, meaning 4 zeroes.
 - and the nonce, see [Finding the nonce](#Finding_The_Nonce)
-
-I decided to make static data so that is easy to verify the nonce and the block without re-mining it. but you can re-mine the block changing the timestamp.
-
 
 ## Making The Merkle Root
 
 The Merkle Root is basically a tree structure that hashes the tx ids until you got only one for validating the transactions composition... in this way, changing one tx id will change all the Merkle Root.
 
 ![Merkle Root](image.png)
-
-but the Merkle root can only have valid tx ids and you have to verify the weight of the block when adding transactions, the weight being 4 mbs.
-
-To achieve this in a performant way i have to sift through transactions in a logical order to avoid unnecessary work. Being:
-
-1.  Verifying the transaction Syntax
-2.  Input Signature
-3.  Locking Script Validation
-4.  UTXO Validation + spent value check + locktime (in case of conflict)
 
 after that, I should have a list of valid transactions and before building the Merkle Root itself I have to find the highest fee transaction composition that can fit in 4mb block data.
 
@@ -35,19 +24,36 @@ after think for a while, i came with the right solution to this problem, the kna
 
 For this algorithm, i have to extract some information of the transactions.
 
-After this point consider every transaction mentioned a valid one. From these transactions i have to extract their size in megabytes, their total fee of transactions and their tx id.
+From these transactions i have to extract their size in megabytes, their total fee of transactions and their tx id.
 
-But in this way, I could still got some errors because I may spend a transaction that I did not include previously in the block and to avoid that I need to previously make a list of connected transactions and consider it as an object to be included in the block, this object will expose the total size in megabytes and the fee of all transactions included in the list.
+And then, implement the 0-1 Knapsack algorithm to search for the best combination of the transaction list objects.
 
-*fazer um esquema pra reprentar as listas de transacoes*
+There is a plenty of solutions to knapsack... but the one i will use is
 
-After that, we have to implement the 0-1 Knapsack algorithm to search for the best combination of the transaction list objects.
+```
+valid_transactions = list...
 
-The knapsack algorithm actually make a table that combines all the alternatives but with a computing economic approach.I really suggest to read or watch about.
+sort_valid_transactions_by_fee_ratio(valid_transactions)
+
+for each transaction in valid_transactions
+    if has remaining size
+        include
+    else
+        not include
+
+```
+
+to sort by fee ratio, i need the weight of the transactions...
+i can get by this formula
+`get_size_in_mbs(transaction_data) * 4 + get_size_in_mbs(witness_Data)`
+
+
 
 ### Finally Building the Merkle Root
 
 After this, we have the exactly transactions that we will include in our block and now we can make the Merkle Root by hashing 1 or 2 txids and hashing the results together until we have a unique hash at the end.
+
+since we have witness data, i have to do the same process, but including all transaction data in the tx_id(now being wtxid).
 
 ## Finding The Nonce
 
@@ -70,30 +76,31 @@ In the Bitcoin context is a 4-byte(or 32-bit) integer value(e.g. any number betw
 
 The "mining" process consist in finding the right nonce that will get us the hash that we need to find.
 
-There is a chance that the 32-bit nonce will not have enough entropy to find the hash, but if this occurs, the timestamp will change.
+There is a chance that the 32-bit nonce will not have enough entropy to find the hash, but if this occurs, the timestamp will change and reset the nonce.
 
 To find that, we have a certain number of hashes that we can get with 32-bit nounce that is `4,294,967,296` hashes, wen the nounce came to its maximum, the algorithm will change the timestamp so we can try the nounce all again, keeping this process until we have the hash.
 
-When the algorithm finds the hash it will log all the output into some `{blockhash}log.txt` file. This will help anyone to test the program.
+When the algorithm finds the hash it will log all the output into some `output.txt` file. This will help anyone to test the program.
 
-## Development Process
-- [X] Describes all the modules and dev steps in SOLUTION.md
-- [ ] Python Code
-    - [X] tx's validation
-    - [X] tx's array object
-    - [X] knapsack
-    - [X] Merkle Root
-    - [ ] Block Header
-    - [ ] find the nonce
-    - [ ] output and log  
+## Code design
+in this code challenge, ill try some data-driven oriented programming and try to organize the code by modules.
 
-### Efficiency and optimization 
+transaction code at `tx/`
 
-First i will prototype in python and later re-write everything in rust... i think that this is the best way to write good code, without bugs and test covered.
+blockbuilding code at `blockcuilder.py`
 
-#### Orphan transactions
-in the commit logs, do a checkout if you need to (4798bc500901b73af8a9fffe00fa750aa802cc69)
+and all mining stuff at `main.py`
 
-The `valid_tx_array` function at `transactions/transactions.py` build a graph, recursively trying to find the prevout txid and adding it to a list of dicts(the dict object contain txid : "fee", "size" ), until it does not find the prevout txid adding a "empty" dict.
+# Results
+With this simulation of block mining I got
 
-after a lot of check, all the lists only has the empty dict and the tx itself, meaning that they all are orphans.
+the maximum fee expected defined by SoB which is `20616923` respecting the block weight
+
+with at maximum `1 minute` of mining depending of luck
+
+## personal conclusion
+
+I`m sure that was not easy, i spent a bit more than 2 weeks working on this project, but Im also sure that was fun enough to try SoB next year!
+
+Was my first time dealing with a bunch of things, such as byte manipulation, transaction serialization and other things that mostly the bitcoin libs already has implemented.
+Learning about all that was helpful to understand all the security that bitcoin has.

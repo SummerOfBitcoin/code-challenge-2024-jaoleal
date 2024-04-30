@@ -1,8 +1,9 @@
 import calendar
 from hashlib import sha256
 import time
-from tx import tx_knapsack as knap_mod, transactions as tx_mod, serialization as ser
+from tx import tx_knapsack as knap_mod, transactions as tx_mod, serialization as ser, transaction_validation as tx_val
 import blockbuilder as bb_mod
+
 def main():
     #This is all the hard coded info
     version = "00000020"
@@ -19,6 +20,11 @@ def main():
 
     #gets all the txs filenames in  ../../mempool
     entries = tx_mod.get_tx_info("all")
+    #validate the entries
+    valid_entries = list()
+    for entry in entries:
+        if tx_val.tx_syntax_validation(tx_mod.get_tx_info(entry)):
+            valid_entries.append(entry)
 
     #gets some info about the txs, like fee, weight and the file name
     block_weight = 4000000
@@ -26,7 +32,7 @@ def main():
     
     #gets the valid txs and their respective values
     transaction_values = list()
-    for entry in entries:
+    for entry in valid_entries:
         transaction_values.append(tx_mod.valid_tx_values(entry))
     
     #gets the txs that will be included in the block using a knapsack 1-0 algorithm

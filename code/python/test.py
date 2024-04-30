@@ -1,14 +1,47 @@
 import json
 import tx.transactions as txmod
+import tx.transaction_validation as txval
 import tx.serialization as txser
 import blockbuilder as bbmod
 import hashlib as h
+
+def test_witness_script():
+  tx_filename =  "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a"
+  assert txval.validate_tx_script(tx_filename) == True
+
+def test_checksig_with_serialization():
+  tx_filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
+  assert txval.validate_tx_script(tx_filename) == True
+
+def test_script_no_checksig():
+  script = "1 OP_DUP"
+  script = script.split(" ")
+  assert txval.execute_script([], script) == True
+  script = "12 OP_HASH160"
+  script = script.split(" ")
+  assert txval.execute_script([], script) == True
+  script = "OP_PUSHBYTES 21 OP_HASH160".split(" ")
+  assert txval.execute_script([], script) == True
+  script = "1 1 OP_EQUAL".split(" ")
+  assert txval.execute_script([], script) == True
+  script = "1 2 OP_EQUALVERIFY".split(" ")
+  assert txval.execute_script([], script) == False
+  script = "1 1 OP_EQUALVERIFY".split(" ")
+  assert txval.execute_script([], script) == False
+  script = "OP_0".split(" ")
+  #in this specific case, python considers 0 false (i dont know why)
+  assert txval.execute_script([], script) == False
+  script = "OP_PUSHNUM_1".split(" ")
+  assert txval.execute_script([], script) == True
+  script = "OP_PUSHNUM_1 OP_PUSHNUM_1 OP_EQUAL".split(" ")
+  assert txval.execute_script([], script) == True
+
 
 def test_witness_commitment():
     entries = ["82f9f96db7bdbb9e70626747632e373b34eefd50d613dfea7092744169591b6e","7cb2a4f55245bae141a5d6ad51c08d7a9fdf2c2b905e4d97639ed80b82e69800","a9e537569db3c64340ed5abcdd983e9bb1b6ad6f90c93bc80d31c5cc0490bcea","4ab3cc4296fee78153d60d2884323a84260157db0b83a72309272f109ad9dd32","c2aedaae370101d6ca170f206e74222ae934afefe0e621b79b6290b919526563","2d5eb3d5dd4df76bf88f2f89c49c98be5552c7800c9ce20bb60a5496a23ec25f","7e4a05a078f4d7afcd686d117e319f8f14d69be43a0609bb9a9cb36a75a88abb"]
     for i in range(len(entries)):
        entries[i] = bytes.fromhex(txser.invert_bytes(entries[i]))
-    witness_root = bbmod.wmerkle_root(entries, False)
+    witness_root = bbmod.merkle_root(entries, False)
     assert witness_root.hex() == "8835c8a2f6d1d85b9a3eaa3922d196f91356542417c9a3e849e41ef8ab3c616f"
 
 def test_wtxid():
@@ -98,59 +131,3 @@ def test_get_tx_info():
     }
   ]
 }""")
-
-##needs to be implemented
-def test_btc_script():
-    pass
-    interpreter = btcscript.execute_script("")
-    stack = []
-    tx_data = {'locktime': 1633649812, 'sequence': 4294967295}
-
-    # P2PKH
-    script_pubkey_p2pkh = "OP_DUP OP_HASH160 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_EQUALVERIFY OP_CHECKSIG"
-    script_sig_p2pkh = "3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 04abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    stack_p2pkh = (script_sig_p2pkh +  script_pubkey_p2pkh).split()
-
-    # P2SH
-    script_pubkey_p2sh = "OP_HASH160 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_EQUAL"
-    script_sig_p2sh = "0 3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 [OP_DUP OP_HASH160 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_EQUALVERIFY OP_CHECKSIG]"
-    stack_p2sh = [script_sig_p2sh, script_pubkey_p2sh]
-
-    # P2MS
-    script_pubkey_p2ms = "2 OP_1 6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_1 OP_CHECKMULTISIG"
-    script_sig_p2ms = "0 3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    stack_p2ms = [script_sig_p2ms, script_pubkey_p2ms]
-
-    # P2PK
-    script_pubkey_p2pk = "6ac8a68e42d499b8d8a12e8b1ea794dbd75c3f56 OP_CHECKSIG"
-    script_sig_p2pk = "3045022100abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-    stack_p2pk = [script_sig_p2pk, script_pubkey_p2pk]
-
-    result_p2pkh = interpreter.execute_script(script_pubkey_p2pkh, stack_p2pkh, tx_data)
-    result_p2sh = interpreter.execute_script(script_pubkey_p2sh, stack_p2sh, tx_data)
-    result_p2ms = interpreter.execute_script(script_pubkey_p2ms, stack_p2ms, tx_data)
-    result_p2pk = interpreter.execute_script(script_pubkey_p2pk, stack_p2pk, tx_data)
-    
-    assert (result_p2pkh and result_p2sh and result_p2ms and result_p2pk) == True
-
-def test_verify_transaction():
-    # Arrange
-    valid_transaction = {
-        'txid': '123',
-        'inputs': [{'txid': 'abc', 'index': '0'}],
-        'outputs': [{'address': '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 'value': 50}]
-    }
-
-    invalid_transaction = {
-        'txid': 123,
-        'inputs': [{'txid': 'abc', 'index': '0'}],
-        'outputs': [{'address': '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 'value': 50}]
-    }
-
-    # Act
-    result_valid = txmod.tx_syntax_validation(valid_transaction)
-    result_invalid = txmod.tx_syntax_validation(invalid_transaction)
-
-    # Assert
-    assert result_valid == True
-    assert result_invalid == False
